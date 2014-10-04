@@ -7,6 +7,15 @@ function AntWalk(_canvas) {
     var canvas = _canvas;
     var context = canvas.getContext('2d');
 
+    var colours = [ 
+        null,
+        'rgb(000,255,255)',
+        'rgb(000,148,255)',
+        'rgb(000,038,255)',
+        'rgb(072,000,255)'
+    ];
+    var string = [ 'R', 'L', 'R', 'L' ];
+
     var cellIndexFromCoordinates = function (x, y, height) {
         return y + x * height;
     };
@@ -15,7 +24,7 @@ function AntWalk(_canvas) {
         return ((this % n) + n) % n; 
     }
 
-    function Ant(_grid, _x, _y) {
+    function Ant(_grid, _x, _y, _string) {
         var self = this;
 
         var grid = _grid;
@@ -23,6 +32,7 @@ function AntWalk(_canvas) {
         var y = _y;
         var headings = [ 'N', 'E', 'S', 'W' ];
         var headingIndex = 3;
+        var string = _string;
 
         var getCurrentCellValue = function() {
             return grid.cells[cellIndexFromCoordinates(x, y, grid.height)];
@@ -34,14 +44,10 @@ function AntWalk(_canvas) {
 
         var rotateRight = function() {
             headingIndex = (headingIndex + 1).mod(headings.length);
-            //console.log('rotate right to ' + headingIndex + ' + 1 % ' + headings.length + ' = ' + newHeadingIndex + ' => ' + headings[newHeadingIndex]);
-            //console.log('rotate right to ' + headings[headingIndex]);
         };
 
         var rotateLeft = function() {
             headingIndex = (headingIndex - 1).mod(headings.length);
-            //console.log('rotate left to ' + headingIndex + ' - 1 % ' + headings.length + ' = ' + newHeadingIndex + ' => ' + headings[newHeadingIndex]);
-            //console.log('rotate left to ' + headings[headingIndex]);
         };
 
         var moveForward = function() {
@@ -51,33 +57,38 @@ function AntWalk(_canvas) {
                 case 'S': y = (y + 1) % grid.height; break;
                 case 'W': x = (x - 1) % grid.height; break;
             }
-            //console.log('move forward to ' + x + ', ' + y);
         };
 
         self.update = function() {
-            if (getCurrentCellValue() == 0) {
+            var currentValue = getCurrentCellValue();
+
+            if (string[currentValue] == 'R') {
                 rotateRight();
-                setCurrentCellValue(1);
             }
             else {
                 rotateLeft();
-                setCurrentCellValue(0);
             }
+
+            setCurrentCellValue((currentValue + 1) % (string.length+1));
             moveForward();
 
-            //console.log('');
+            //console.log('set to ' + getCurrentCellValue());
         };
     }
 
     var grid = {
-        width: 100,
-        height: 100,
+        width: canvas.width / cellSize,
+        height: canvas.height / cellSize,
         cells: []
     };
     for (var i=0; i<grid.width*grid.height; ++i)
         grid.cells[i] = 0;
 
-    var ant = new Ant(grid, Math.floor(grid.width/2), Math.floor(grid.height/2));
+    var ant = new Ant(
+        grid, 
+        Math.floor(grid.width/2),
+        Math.floor(grid.height/2),
+        string);
 
     var update = function () {
         ant.update();
@@ -93,14 +104,17 @@ function AntWalk(_canvas) {
                 if (cellValue == 0)
                     continue;
 
-                cellsToDraw.push({ x: x, y: y });
+                cellsToDraw.push({ 
+                    x: x, 
+                    y: y, 
+                    value: cellValue 
+                });
             }
         }
 
-        context.fillStyle = 'black';
-        context.beginPath();
         for (var index = 0; index < cellsToDraw.length; ++index) {
             var cell = cellsToDraw[index];
+            context.fillStyle = colours[cell.value];
             context.fillRect(
                 cell.x * cellSize,
                 cell.y * cellSize,
