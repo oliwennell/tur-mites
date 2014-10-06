@@ -14,7 +14,7 @@ function AntWalk(_canvas) {
         'rgb(000,038,255)',
         'rgb(072,000,255)'
     ];
-    var string = [ 'R', 'L', 'R', 'L' ];
+    var string = "RLRL";
 
     var cellIndexFromCoordinates = function (x, y, height) {
         return y + x * height;
