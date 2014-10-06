@@ -8,13 +8,12 @@ function AntWalk(_canvas) {
     var context = canvas.getContext('2d');
 
     var colours = [ 
-        null,
         'rgb(000,255,255)',
         'rgb(000,148,255)',
         'rgb(000,038,255)',
         'rgb(072,000,255)'
     ];
-    var string = "RLRL";
+    var string = "RRLLLRLLLRRR";
 
     var cellIndexFromCoordinates = function (x, y, height) {
         return y + x * height;
@@ -71,8 +70,6 @@ function AntWalk(_canvas) {
 
             setCurrentCellValue((currentValue + 1) % (string.length+1));
             moveForward();
-
-            //console.log('set to ' + getCurrentCellValue());
         };
     }
 
@@ -114,7 +111,7 @@ function AntWalk(_canvas) {
 
         for (var index = 0; index < cellsToDraw.length; ++index) {
             var cell = cellsToDraw[index];
-            context.fillStyle = colours[cell.value];
+            context.fillStyle = colours[cell.value % colours.length];
             context.fillRect(
                 cell.x * cellSize,
                 cell.y * cellSize,
